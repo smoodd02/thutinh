@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Web Thư Tình Online</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Pacifico&display=swap" rel="stylesheet" />
+<style>
+  /* CSS đầy đủ */
+  body {
+    max-width: 650px;
+    margin: auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fffaf0;
+    padding: 20px;
+    overflow-x: hidden;
+    position: relative;
+  }
+  h1 {
+    text-align: center;
+    color: #e0245e;
+    margin-bottom: 10px;
+  }
+  nav {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  nav button {
+    margin: 0 10px;
+    padding: 10px 25px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    background: #e0245e;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  nav button.active {
+    background: #a5003e;
+  }
+  nav button:hover:not(.active) {
+    background: #ff4981;
+  }
+  section {
+    display: none;
+  }
+  section.active {
+    display: block;
+  }
+  /* Người gửi */
+  #senderSection label {
+    display: block;
+    margin: 12px 0 6px 0;
+    font-weight: bold;
+  }
+  #senderSection input[type="text"],
+  #senderSection input[type="password"],
+  #senderSection textarea,
+  #senderSection select {
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-family: 'Dancing Script', cursive;
+  }
+  #senderSection textarea {
+    min-height: 140px;
+    resize: vertical;
+  }
+  #senderSection input[type="file"] {
+    margin-top: 6px;
+  }
+  #senderSection button {
+    margin-top: 15px;
+    padding: 12px 25px;
+    font-size: 20px;
+    border-radius: 8px;
+    border: none;
+    background-color: #e0245e;
+    color: white;
+    cursor: pointer;
+  }
+  #senderSection .image-preview {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #senderSection .image-preview img {
+    max-width: 100px;
+    border-radius: 8px;
+    box-shadow: 0 0 5px #e0245e;
+  }
+
+  /* Người nhận */
+  #receiverSection {
+    text-align: center;
+  }
+  #receiverSection input[type="password"] {
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 70%;
+    max-width: 300px;
+  }
+  #receiverSection button {
+    padding: 12px 20px;
+    font-size: 18px;
+    margin-left: 10px;
+    border-radius: 6px;
+    border: none;
+    background-color: #e0245e;
+    color: white;
+    cursor: pointer;
+  }
+  #passError {
+    color: red;
+    margin-top: 12px;
+    font-weight: bold;
+  }
+  #letterContent {
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    background: #ffe6f0;
+    box-shadow: 0 0 10px rgba(200, 100, 150, 0.3);
+    font-family: 'Dancing Script', cursive;
+    font-size: 22px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    display: none;
+    position: relative;
+  }
+  #letterContent h2 {
+    margin-bottom: 12px;
+    color: #e0245e;
+  }
+  #letterContent em {
+    display: block;
+    margin-top: 20px;
+    font-style: italic;
+    color: #555;
+  }
+  #imageSlider {
+    margin-top: 20px;
+    text-align: center;
+  }
+  #imageSlider img {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 0 5px #aaa;
+    vertical-align: middle;
+  }
+  #imageSlider button {
+    font-size: 22px;
+    padding: 6px 14px;
+    margin: 0 15px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid #e0245e;
+    background: #fff0f6;
+    color: #e0245e;
+    transition: background 0.3s ease;
+  }
+  #imageSlider button:hover {
+    background: #e0245e;
+    color: white;
+  }
+
+  /* Máy phát nhạc */
+  #musicPlayer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #e0245e;
+    padding: 10px 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    z-index: 10000;
+    color: white;
+    font-family: Arial, sans-serif;
+    width: 280px;
+  }
+  #musicPlayer button {
+    background:none;
+    border:none;
+    color:white;
+    font-size: 20px;
+    cursor:pointer;
+    vertical-align: middle;
+  }
+  #progressBar {
+    width: 150px;
+    vertical-align: middle;
+    margin: 0 10px;
+  }
+  #currentTime, #duration {
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Web Thư Tình Online 💌</h1>
+
+<nav>
+  <button id="btnSender" class="active">Người Gửi</button>
+  <button id="btnReceiver">Người Nhận</button>
+</nav>
+
+<!-- Phần Người Gửi -->
+<section id="senderSection" class="active">
+  <label for="senderName">Tên người gửi:</label>
+  <input type="text" id="senderNameInput" placeholder="Nhập tên bạn" />
+
+  <label for="receiverName">Tên người nhận:</label>
+  <input type="text" id="receiverNameInput" placeholder="Nhập tên người nhận" />
+
+  <label for="letterMessage">Nội dung thư:</label>
+  <textarea id="letterMessageInput" placeholder="Viết thư tình ở đây..."></textarea>
+
+  <label for="letterFont">Chọn font chữ:</label>
+  <select id="letterFontSelect">
+    <option value="'Dancing Script', cursive">Dancing Script</option>
+    <option value="'Pacifico', cursive">Pacifico</option>
+    <option value="Arial, sans-serif">Arial</option>
+    <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Segoe UI</option>
+    <option value="'Courier New', Courier, monospace">Courier New</option>
+  </select>
+
+  <label for="passInputSender">Tạo mật khẩu để bảo vệ thư:</label>
+  <input type="password" id="passInputSender" placeholder="Nhập mật khẩu bí mật" />
+
+  <label for="imageUpload">Chọn ảnh (có thể chọn nhiều):</label>
+  <input type="file" id="imageUpload" accept="image/*" multiple />
+  <div class="image-preview" id="imagePreview"></div>
+
+  <button id="saveLetterBtn">Lưu thư</button>
+  <div id="saveStatus" style="margin-top:10px;color:green;"></div>
+</section>
+
+<!-- Phần Người Nhận -->
+<section id="receiverSection">
+  <input type="password" id="passInputReceiver" placeholder="Nhập mật khẩu để xem thư" />
+  <button id="passBtnReceiver">Xem Thư</button>
+  <div id="passError"></div>
+
+  <div id="letterContent">
+    <h2>Thư gửi: <span id="receiverNameDisplay"></span></h2>
+    <p id="letterMessageDisplay"></p>
+
+    <div id="imageSlider" style="display:none;">
+      <button id="prevBtn">&#8592;</button>
+      <img id="currentImage" src="" alt="Ảnh thư" />
+      <button id="nextBtn">&#8594;</button>
+    </div>
+
+    <em>Người gửi: <span id="senderNameDisplay"></span></em>
+  </div>
+</section>
+
+<!-- Máy phát nhạc nền Kiss The Rain -->
+<div id="musicPlayer">
+  
+  <button id="playPauseBtn">▶️</button>
+  <input type="range" id="progressBar" min="0" max="100" value="0" />
+  <span id="currentTime">00:00</span> / <span id="duration">00:00</span>
+</div>
+
+<script>
+  // Chuyển tab
+  const btnSender = document.getElementById('btnSender');
+  const btnReceiver = document.getElementById('btnReceiver');
+  const senderSection = document.getElementById('senderSection');
+  const receiverSection = document.getElementById('receiverSection');
+
+  btnSender.onclick = () => {
+    btnSender.classList.add('active');
+    btnReceiver.classList.remove('active');
+    senderSection.classList.add('active');
+    receiverSection.classList.remove('active');
+  };
+  btnReceiver.onclick = () => {
+    btnReceiver.classList.add('active');
+    btnSender.classList.remove('active');
+    receiverSection.classList.add('active');
+    senderSection.classList.remove('active');
+  };
+
+  // Xem trước ảnh upload
+  const imageUpload = document.getElementById('imageUpload');
+  const imagePreview = document.getElementById('imagePreview');
+  let imageFiles = [];
+
+  imageUpload.addEventListener('change', () => {
+    imagePreview.innerHTML = '';
+    imageFiles = Array.from(imageUpload.files);
+
+    imageFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        imagePreview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  // Lưu thư vào localStorage
+  const saveLetterBtn = document.getElementById('saveLetterBtn');
+  const saveStatus = document.getElementById('saveStatus');
+
+  saveLetterBtn.onclick = () => {
+    const senderName = document.getElementById('senderNameInput').value.trim();
+    const receiverName = document.getElementById('receiverNameInput').value.trim();
+    const message = document.getElementById('letterMessageInput').value.trim();
+    const pass = document.getElementById('passInputSender').value.trim();
+    const font = document.getElementById('letterFontSelect').value;
+
+    if(!senderName || !receiverName || !message || !pass) {
+      saveStatus.style.color = 'red';
+      saveStatus.textContent = 'Vui lòng nhập đầy đủ thông tin và mật khẩu!';
+      return;
+    }
+
+    // Convert images to base64 strings
+    let imageDataUrls = [];
+    if(imageFiles.length > 0) {
+      let filesProcessed = 0;
+      imageDataUrls = [];
+
+      imageFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          imageDataUrls.push(e.target.result);
+          filesProcessed++;
+          if(filesProcessed === imageFiles.length) {
+            saveData();
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    } else {
+      saveData();
+    }
+
+    function saveData() {
+      const letterData = {
+        senderName,
+        receiverName,
+        message,
+        pass,
+        font,
+        images: imageDataUrls
+      };
+      // Lưu vào localStorage key là "loveLetter"
+      localStorage.setItem('loveLetter', JSON.stringify(letterData));
+      saveStatus.style.color = 'green';
+      saveStatus.textContent = 'Lưu thư thành công! Bạn có thể chuyển sang tab Người Nhận để xem.';
+      
+      // Clear inputs after save
+      document.getElementById('senderNameInput').value = '';
+      document.getElementById('receiverNameInput').value = '';
+      document.getElementById('letterMessageInput').value = '';
+      document.getElementById('passInputSender').value = '';
+      document.getElementById('letterFontSelect').value = "'Dancing Script', cursive";
+      imageUpload.value = '';
+      imagePreview.innerHTML = '';
+      imageFiles = [];
+    }
+  };
+
+  // Xem thư cho người nhận
+  const passBtnReceiver = document.getElementById('passBtnReceiver');
+  const passInputReceiver = document.getElementById('passInputReceiver');
+  const passError = document.getElementById('passError');
+  const letterContent = document.getElementById('letterContent');
+  const receiverNameDisplay = document.getElementById('receiverNameDisplay');
+  const letterMessageDisplay = document.getElementById('letterMessageDisplay');
+  const senderNameDisplay = document.getElementById('senderNameDisplay');
+  const letterFontSelect = document.getElementById('letterFontSelect');
+  const imageSlider = document.getElementById('imageSlider');
+  const currentImage = document.getElementById('currentImage');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  let currentImageIndex = 0;
+  let images = [];
+
+  passBtnReceiver.onclick = () => {
+    passError.textContent = '';
+    letterContent.style.display = 'none';
+    const inputPass = passInputReceiver.value.trim();
+    if(!inputPass) {
+      passError.textContent = 'Vui lòng nhập mật khẩu để xem thư.';
+      return;
+    }
+    const letterDataRaw = localStorage.getItem('loveLetter');
+    if(!letterDataRaw) {
+      passError.textContent = 'Chưa có thư được gửi.';
+      return;
+    }
+    const letterData = JSON.parse(letterDataRaw);
+
+    if(inputPass !== letterData.pass) {
+      passError.textContent = 'Mật khẩu không đúng. Vui lòng thử lại.';
+      return;
+    }
+
+    // Hiển thị thư
+    receiverNameDisplay.textContent = letterData.receiverName;
+    letterMessageDisplay.textContent = letterData.message;
+    letterMessageDisplay.style.fontFamily = letterData.font || "'Dancing Script', cursive";
+    senderNameDisplay.textContent = letterData.senderName;
+    letterContent.style.display = 'block';
+
+    // Hiển thị ảnh nếu có
+    images = letterData.images || [];
+    currentImageIndex = 0;
+    if(images.length > 0) {
+      currentImage.src = images[currentImageIndex];
+      imageSlider.style.display = 'block';
+    } else {
+      imageSlider.style.display = 'none';
+    }
+  };
+
+  prevBtn.onclick = () => {
+    if(images.length === 0) return;
+    currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+    currentImage.src = images[currentImageIndex];
+  };
+  nextBtn.onclick = () => {
+    if(images.length === 0) return;
+    currentImageIndex = (currentImageIndex + 1) % images.length;
+    currentImage.src = images[currentImageIndex];
+  };
+
+  // Máy phát nhạc nền
+  const bgMusic = document.getElementById('bgMusic');
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const progressBar = document.getElementById('progressBar');
+  const currentTimeElem = document.getElementById('currentTime');
+  const durationElem = document.getElementById('duration');
+
+  playPauseBtn.onclick = () => {
+    if(bgMusic.paused) {
+      bgMusic.play();
+      playPauseBtn.textContent = '⏸️';
+    } else {
+      bgMusic.pause();
+      playPauseBtn.textContent = '▶️';
+    }
+  };
+
+  bgMusic.addEventListener('loadedmetadata', () => {
+    progressBar.max = Math.floor(bgMusic.duration);
+    durationElem.textContent = formatTime(bgMusic.duration);
+  });
+
+  bgMusic.addEventListener('timeupdate', () => {
+    progressBar.value = Math.floor(bgMusic.currentTime);
+    currentTimeElem.textContent = formatTime(bgMusic.currentTime);
+  });
+
+  progressBar.addEventListener('input', () => {
+    bgMusic.currentTime = progressBar.value;
+  });
+
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+  }
+</script>
+
+</body>
+</html>
